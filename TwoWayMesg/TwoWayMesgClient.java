@@ -1,6 +1,6 @@
 /*
- * Implementation of the one-way message client in java
- * By Srihari Nelakuditi for CSCE 416
+ * Implementation of the two-way message client in java
+ * By Srihari Nelakuditi and Adam Steger for CSCE 416
  */
 
 // Package for I/O related stuff
@@ -22,7 +22,7 @@ public class TwoWayMesgClient {
 	{
 		// Client needs server's contact information
 		if (args.length != 2) {
-			System.out.println("usage: java OneWayMesgClient <server name> <server port>");
+			System.out.println("usage: java TwoWayMesgClient <server name> <server port>");
 			System.exit(1);
 		}
 

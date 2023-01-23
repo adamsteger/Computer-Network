@@ -1,6 +1,6 @@
 /*
- * Implementation of a one-way message server in java
- * By Srihari Nelakuditi for CSCE 416
+ * Implementation of a two-way message server in java
+ * By Srihari Nelakuditi and Adam Steger for CSCE 416
  */
 
 // Package for I/O related stuff
@@ -21,7 +21,7 @@ public class TwoWayMesgServer {
 	public static void main(String args[]) {
 		// Server needs the port number to listen on
 		if (args.length != 1) {
-			System.out.println("usage: java OneWayMesgServer <port>");
+			System.out.println("usage: java TwoWayMesgServer <port>");
 			System.exit(1);
 		}
 
@@ -73,7 +73,10 @@ public class TwoWayMesgServer {
 				// Display the message
 				System.out.println("Client: " + message);
 
+                // Read a line from the keyboard
                 String input = fromServerReader.readLine();
+
+                // Send the line to the client
                 toClientWriter.println(input);
 			}
 		}

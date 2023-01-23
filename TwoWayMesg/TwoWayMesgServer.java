@@ -76,6 +76,12 @@ public class TwoWayMesgServer {
                 // Read a line from the keyboard
                 String input = fromServerReader.readLine();
 
+                // If we get null, it means user is done
+				if (input == null) {
+					System.out.println("Closing connection");
+					break;
+				}
+
                 // Send the line to the client
                 toClientWriter.println(input);
 			}

@@ -85,6 +85,10 @@ public class TwoWayMesgServer {
                 // Send the line to the client
                 toClientWriter.println(input);
 			}
+
+			// Close the writer
+			toClientWriter.close();
+			
 		}
 		catch(Exception e) {
 			// Print the exception message

@@ -33,6 +33,9 @@ public class GroupChatClient implements Runnable
 	// For writing messages to the socket
 	private PrintWriter toSockWriter;
 
+	// The name of the client
+	private static String name;
+
 	// Constructor sets the reader and writer for the child thread
 	public GroupChatClient(BufferedReader reader, PrintWriter writer)
 	{
@@ -45,19 +48,21 @@ public class GroupChatClient implements Runnable
 	{
 		// Read from the keyboard and write to socket
 		try {
+			toSockWriter.println(name);
 			// Keep doing till user types EOF (Ctrl-D)
 			while (true) {
 				// Read a line from the user
 				String line = fromUserReader.readLine();
+
+				// Write the line to the socket
+				toSockWriter.println(line);
 
 				// If we get null, it means EOF, so quit
 				if (line == null) {
 					System.out.println("*** Client closing connection");
 					break;
 				}
-
-				// Write the line to the socket
-				toSockWriter.println(line);
+				
 			}
 		}
 		catch (Exception e) {
@@ -77,17 +82,18 @@ public class GroupChatClient implements Runnable
 	 */
 	public static void main(String args[])
 	{
-        // TODO include name to send to server
 		// Client needs server's contact information and user name
-		if (args.length != 2) {
+		if (args.length != 3) {
 			System.out.println("usage: java TwoWayAsyncMesgClient <host> <port> <name>");
 			System.exit(1);
 		}
 
 		// Connect to the server at the given host and port
 		Socket sock = null;
+	
 		try {
 			sock = new Socket(args[0], Integer.parseInt(args[1]));
+			name = args[2];
 			System.out.println(
 					"Connected to server at " + args[0] + ":" + args[1]);
 		}
@@ -127,15 +133,8 @@ public class GroupChatClient implements Runnable
 				// Read a line from the socket
 				String line = fromSockReader.readLine();
 
-				// If we get null, it means EOF
-				if (line == null) {
-					// Tell user server quit
-					System.out.println("*** Server closed connection");
-					break;
-				}
-
 				// Write the line to the user
-				System.out.println("Server: " + line);
+				System.out.println(line);
 			}
 		}
 		catch(Exception e) {

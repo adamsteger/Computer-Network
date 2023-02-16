@@ -27,47 +27,81 @@ import java.util.ArrayList;
  */
 public class GroupChatServer implements Runnable
 {
-	// For reading messages from the keyboard
-	private BufferedReader fromUserReader;
+	private Socket socket;
 
-	// For writing messages to the socket
-	private PrintWriter toSockWriter;
+	// For managing the different child threads
+	private static ArrayList<PrintWriter> clients = new ArrayList<>();
 
-    // For managing the different child threads
 
-	// Constructor sets the reader and writer for the child thread
-	public GroupChatServer(BufferedReader reader, PrintWriter writer)
+	// Method to add a new client to the list of active clients
+	private static synchronized void addClient(PrintWriter client) {
+		clients.add(client);
+	}
+
+	// Method to remove a client from the list of active clients
+	private static synchronized void removeClient(PrintWriter client) {
+		clients.remove(client);
+	}
+
+	// Method to broadcast a message to all clients except the sender
+	private static void relayMessage(PrintWriter client, String message) {
+		for (PrintWriter user : clients) {
+			if(user != client) {
+				user.println(message);
+			}
+		}
+	}
+    
+	// Constructor sets the socket for the child thread
+	public GroupChatServer(Socket socket)
 	{
-		fromUserReader = reader;
-		toSockWriter = writer;
+		this.socket = socket;
 	}
 
 	// The child thread starts here
 	public void run()
 	{
-		// Read from the keyboard and write to socket
 		try {
-			// Keep doing till user types EOF (Ctrl-D)
-			while (true) {
-				// Read a line from the user
-				String line = fromUserReader.readLine();
 
-				// If we get null, it means EOF, so quit
-				if (line == null) {
-					System.out.println("*** Server closing connection");
+			// Prepare to write to socket with auto flush on
+			PrintWriter toSockWriter =
+			new PrintWriter(socket.getOutputStream(), true);
+
+			// Add to the list of active clients
+			addClient(toSockWriter);
+
+			// Prepare to read from socket
+			BufferedReader fromSockReader = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
+
+			// Get the name from the client
+			String name = fromSockReader.readLine();
+			System.out.println("New client connected: " + name + "\n");
+
+			// Keep doing till user is done
+			while (true) {
+				// Read a line from the socket
+				String line = fromSockReader.readLine();
+
+				// If we get null, it means EOF
+				if (line.equals("null")) {
+					// Tell user client quit
+					System.out.println(name + " disconnected from the server");
 					break;
 				}
-				// Write the line to the socket
-				toSockWriter.println(line);
-			}
+
+				// Write the line to the other users and the console
+				String message = name + ": " + line;
+				System.out.println(message);
+                relayMessage(toSockWriter, message);
+            }
+			removeClient(toSockWriter);
 		}
 		catch (Exception e) {
 			System.out.println(e);
 			System.exit(1);
 		}
 
-		// End the other thread too
-		System.exit(0);
 	}
 
 	/*
@@ -87,64 +121,21 @@ public class GroupChatServer implements Runnable
 		// Get the port on which server should listen */
 		int serverPort = Integer.parseInt(args[0]);
 
-        ArrayList<Thread> userThreads = new ArrayList<>();
-        while (true) {
-        
-        
 		// Be prepared to catch socket related exceptions
 		Socket clientSock = null;
 		try {
 			// Create a server socket with the given port
 			ServerSocket serverSocket = new ServerSocket(serverPort);
 
-			// Wait for a client and accept it
-			System.out.println("Waiting for a client ...");
-			clientSock = serverSocket.accept();
-			System.out.println("Connected to a client at ('" +
-									((InetSocketAddress) clientSock.getRemoteSocketAddress()).getAddress().getHostAddress()
-									+ "', '" +
-									((InetSocketAddress) clientSock.getRemoteSocketAddress()).getPort()
-									+ "')"
-									);
-            // Prepare to write to socket with auto flush on
-			PrintWriter toSockWriter =
-            new PrintWriter(clientSock.getOutputStream(), true);
-
-            // Prepare to read from keyboard
-            BufferedReader fromUserReader = new BufferedReader(
-                    new InputStreamReader(System.in));
-
-            // Spawn a thread to read from user and write to socket
-            Thread child = new Thread(
-                    new GroupChatServer(fromUserReader, toSockWriter));
-            child.start();
-
-            userThreads.add(child);
-
-		// Now parent thread reads from client and display to user
-
-			// Prepare to read from socket
-			BufferedReader fromSockReader = new BufferedReader(
-					new InputStreamReader(clientSock.getInputStream()));
-
-			// Keep doing till server is done
-			while (true) {
-				// Read a line from the socket
-				String line = fromSockReader.readLine();
-
-				// If we get null, it means EOF
-				if (line == null) {
-					// Tell user client quit
-					System.out.println("*** Client closed connection");
-					break;
-				}
-
-				// Write the line to the user
-				System.out.println("Client: " + line);
-                for(Thread user : userThreads) {
-                    
-                }
+			while(true) {
+				clientSock = serverSocket.accept();
+				
+				// Spawn a thread to read from user and write to socket
+				Thread child = new Thread(
+						new GroupChatServer(clientSock));
+				child.start();
 			}
+			
 		}
 		catch(Exception e) {
 			System.out.println(e);
@@ -154,5 +145,4 @@ public class GroupChatServer implements Runnable
 		// End the other thread too
 		System.exit(0);
     }
-}
 }

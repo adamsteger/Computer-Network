@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch GroupChatClient",
+            "request": "launch",
+            "args": ["localhost", "50000", "Adam"],
+            "mainClass": "GroupChatClient",
+            "projectName": "Computer-Network_7813b05"
+        },
+        {
+            "type": "java",
+            "name": "Launch GroupChatServer",
+            "request": "launch",
+            "mainClass": "GroupChatServer",
+            "args": ["50000"],
+            "projectName": "Computer-Network_7813b05"
+        },
+        {
+            "type": "java",
+            "name": "Launch GroupChatServer2",
+            "request": "launch",
+            "mainClass": "GroupChatServer2",
+            "projectName": "Computer-Network_7813b05"
+        },
+        {
+            "type": "java",
+            "name": "Launch TwoWayMesgClient",
+            "request": "launch",
+            "mainClass": "TwoWayMesgClient",
+            "projectName": "Computer-Network_7813b05"
+        },
+        {
+            "type": "java",
+            "name": "Launch TwoWayMesgServer",
+            "request": "launch",
+            "mainClass": "TwoWayMesgServer",
+            "projectName": "Computer-Network_7813b05"
+        }
+    ]
+}
